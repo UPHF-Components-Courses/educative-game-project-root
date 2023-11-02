@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo:4.4
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/db:/data/db/
+
+  character-service:
+    image: ttl.sh/ecp_character_service:1h
+    ports:
+      - "8090:8080"
+    environment:
+      DB_URL: mongodb://mongo:27017
+      DB_NAME: character_service_db
+      EQUIPMENT_SERVICE_URL: http://equipment-service:8080
+    depends_on:
+      - mongo
+
+  equipment-service:
+    image: ttl.sh/ecp_equipment_service:1h
+    ports:
+      - "8091:8080"
+    environment:
+      DB_URL: mongodb://mongo:27017
+      DB_NAME: equipment_service_db
+    depends_on:
+      - mongo
